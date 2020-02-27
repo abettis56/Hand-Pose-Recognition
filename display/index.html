@@ -34,10 +34,13 @@
 
 		<div id="container"></div>
 
-		<script src="three.min.js"></script>
+		<script src="three.js"></script>
 		<script src="Detector.js"></script>
 		<script src="stats.min.js"></script>
+		<script src="inflate.min.js"></script>
+		<script src="FBXLoader.js"></script>
 		<script src="OrbitControls.js"></script>
+		<script src="GLTFLoader.js"></script>
 
 
 <script>
@@ -252,9 +255,10 @@ function readTextFile(file)
 				scene.add( particleSystem );
 				*/
 				// add spheres 
+				/*
 				for (var j=1;j<data[0].length;j+=3)
 				{	
-					var i = 7;
+					var i = 0;
 					
 					var geometry = new THREE.SphereGeometry(10, 8, 8);
 					var material = new THREE.MeshBasicMaterial( {transparent:true, opacity:0.5} );
@@ -270,8 +274,18 @@ function readTextFile(file)
 
 					sphere.scaleY = 100;
 				}
+				*/
 
-
+				/*
+				//Add FBX model
+				var loader = new THREE.FBXLoader();
+				loader.load( './Hand_rigged.FBX', function ( FBX ) {
+					scene.add( FBX );
+					render();
+					camera.lookAt(FBX);
+					console.log(FBX.SkinnedMesh.bones[0].x);
+				} );
+				*/
 				//
 
 				renderer = new THREE.WebGLRenderer( { antialias: false } );
@@ -298,6 +312,59 @@ function readTextFile(file)
 
 				window.addEventListener( 'resize', onWindowResize, false );
 
+				//REFERENCE GOES HERE; GET FROM SLIME GAME
+				var loader = new THREE.GLTFLoader().setPath( './' );
+				loader.load(
+					// resource URL
+					'LoPoly_Rigged_Hand_Right.glb',
+					// called when the resource is loaded
+					
+					function ( gltf ) {
+						scene.add(gltf.scene);
+
+						
+						var hand = gltf.scene;
+						hand.scale.set(1000, 1000, 1000);
+						hand.position.set(0, 0, 0);
+
+						//gltf.animations; // Array<THREE.AnimationClip>
+						//gltf.scene; // THREE.Scene
+						//gltf.scenes; // Array<THREE.Scene>
+						//gltf.cameras; // Array<THREE.Camera>
+						//gltf.asset; // Object
+
+						//https://tympanus.net/codrops/2019/10/14/how-to-create-an-interactive-3d-character-with-three-js/
+						/*let rightHand = new THREE.TextureLoader().load('../Models/Materials/RightHand.mat');
+
+						rightHand.flipY = false; // we flip the texture so that its the right way up
+
+						const rightHand_mtl = new THREE.MeshPhongMaterial({
+							map: rightHand,
+							color: 0xffffff,
+							skinning: true
+						});
+
+						hand.traverse(o => {
+							if (o.isMesh) {
+							o.castShadow = true;
+							o.receiveShadow = true;
+							o.material = rightHand_mtl; // Add this line
+							}
+						});*/
+					},
+					// called while loading is progressing
+					function ( xhr ) {
+
+						console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+					}//,
+					// called when loading has errors
+					//function ( error ) {
+
+					//	console.log( 'An error happened' );
+
+					//}
+				);
 			}
 
 			function onWindowResize() {
@@ -312,6 +379,23 @@ function readTextFile(file)
 			//
 
 			function animate() {
+
+				scene.traverse(function(child){
+					if (child instanceof THREE.SkinnedMesh){
+						/*
+						 * Bone 0: Hand as a whole
+						 * Bone 1: Thumb Metacarpal
+						 * Bone 2: Thumb Proximal Phalanx
+						 * Bone 3: Thumb Distal Phalanx
+						 * Bone 4: ???
+						 * Bone 5: Index Metacarpal
+						 */
+						child.skeleton.bones[5].rotation.z -= 0.01;
+					}
+					else if  (child instanceof THREE.SkeletonHelper){
+						child.update();
+					}
+				});
 
 				requestAnimationFrame( animate );
 
