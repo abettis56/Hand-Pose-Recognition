@@ -182,7 +182,7 @@ def get_hand_position_data(hand):
     return row
 
 unlocked = True
-data = [[], [], [], [], []]
+data = [[], []]
 dataIndex = 0
     
 class SampleListener(Leap.Listener):
@@ -194,27 +194,14 @@ class SampleListener(Leap.Listener):
         global data
         global dataIndex
         
-        if keyboard.is_pressed('0') and unlocked:
+        if keyboard.is_pressed('space') and unlocked:
             unlocked = False
-            dataIndex = 0
-            print("Now recording finger flexing")
-        if keyboard.is_pressed('1') and unlocked:
-            unlocked = False
-            dataIndex = 1
-            print("Now recording middle flexing")
-        if keyboard.is_pressed('2') and unlocked:
-            unlocked = False
-            dataIndex = 2
-            print("Now recording ring flexing")
-        if keyboard.is_pressed('3') and unlocked:
-            unlocked = False
-            dataIndex = 3
-            print("Now recording pinky flexing")
-        if keyboard.is_pressed('4') and unlocked:
-            unlocked = False
-            dataIndex = 4
-            print("Now recording thumb flexing")
-
+            if dataIndex == 0:
+                dataIndex = 1
+                print("Now recording closed hands")
+            else:
+                dataIndex = 0
+                print("Now recording open hands")
         if keyboard.is_pressed('q') and unlocked:
             print ("Key pressed!")
             frame = controller.frame()
@@ -241,34 +228,15 @@ class SampleListener(Leap.Listener):
 
             #Add rows to .csv files
             for i in range(len(data[0])):
-                with open('index_flex_out.csv', 'ab') as file:
+                with open('open_raw_out.csv', 'ab') as file:
                     writer = csv.writer(file)
                     writer.writerow(data[0][i])
             for i in range(len(data[1])):
-                with open('middle_flex_out.csv', 'ab') as file:
+                with open('closed_raw_out.csv', 'ab') as file:
                     writer = csv.writer(file)
                     writer.writerow(data[1][i])
-            for i in range(len(data[1])):
-                with open('ring_flex_out.csv', 'ab') as file:
-                    writer = csv.writer(file)
-                    writer.writerow(data[2][i])
-            for i in range(len(data[1])):
-                with open('pinky_flex_out.csv', 'ab') as file:
-                    writer = csv.writer(file)
-                    writer.writerow(data[3][i])
-            for i in range(len(data[1])):
-                with open('thumb_flex_out.csv', 'ab') as file:
-                    writer = csv.writer(file)
-                    writer.writerow(data[4][i])
 
-        if (not keyboard.is_pressed('0') and
-        not keyboard.is_pressed('1') and
-        not keyboard.is_pressed('2') and
-        not keyboard.is_pressed('3') and
-        not keyboard.is_pressed('4') and
-        not keyboard.is_pressed('p') and
-        not keyboard.is_pressed('z') and
-        not unlocked):
+        if not keyboard.is_pressed('space') and not keyboard.is_pressed('p') and not keyboard.is_pressed('z') and not unlocked:
             unlocked = True
         
 
@@ -285,7 +253,7 @@ def main():
         print ("Press enter to quit,")
         print ("'q' to record frame,")
         print ("'p' to save data and run tsne,")
-        print (" or 0-4 to switch between finger flexion")
+        print (" or space to switch from open to closed hand poses")
         try:
             sys.stdin.readline()
         except KeyboardInterrupt:
