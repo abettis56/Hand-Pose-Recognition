@@ -32,14 +32,19 @@ def run_tsne():
     ring_end = len(data[2]) + middle_end
     pinky_end = len(data[3]) + ring_end
 
-    #Prep and run TSNE
-    tsne_data = np.asarray(data[0] + data[1] + data[2] + data[3] + data[4])
-    tsne_data = TSNE().fit_transform(tsne_data)
-    for j in range(len(tsne_data)):
+    #Prep and run TSNE and PCA
+    formatted_data = np.asarray(data[0] + data[1] + data[2] + data[3] + data[4])
+    tsne_data = TSNE().fit_transform(formatted_data)
+    pca_data = PCA(n_components=2).fit_transform(formatted_data)
+    for j in range(len(formatted_data)):
+        with open('PCA_out.csv', 'ab') as file:
+            writer = csv.writer(file)
+            writer.writerow(pca_data[j].tolist())
         with open('TSNE_out.csv', 'ab') as file:
             writer = csv.writer(file)
             writer.writerow(tsne_data[j].tolist())
 
+    #Plot TSNE
     plt.plot(tsne_data[:index_end,0], tsne_data[:index_end,1], 'ro',
         tsne_data[index_end:middle_end,0], tsne_data[index_end:middle_end,1], 'bo',
         tsne_data[middle_end:ring_end,0], tsne_data[middle_end:ring_end,1], 'go',
@@ -52,6 +57,25 @@ def run_tsne():
     green_patch = mpatches.Patch(color='green', label='ring flexion')
     cyan_patch = mpatches.Patch(color='cyan', label='pinky flexion')
     magenta_patch = mpatches.Patch(color='magenta', label='thumb flexion')
+    plt.title("TSNE")
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+    plt.legend(handles=[red_patch, blue_patch, green_patch, cyan_patch, magenta_patch])
+    plt.show()
+
+    #Plot PCA
+    plt.plot(pca_data[:index_end,0], pca_data[:index_end,1], 'ro',
+        pca_data[index_end:middle_end,0], pca_data[index_end:middle_end,1], 'bo',
+        pca_data[middle_end:ring_end,0], pca_data[middle_end:ring_end,1], 'go',
+        pca_data[ring_end:pinky_end,0], pca_data[ring_end:pinky_end,1], 'co',
+        pca_data[pinky_end:,0], pca_data[pinky_end:,1], 'mo'
+        )
+
+    red_patch = mpatches.Patch(color='red', label='index flexion')
+    blue_patch = mpatches.Patch(color='blue', label='middle flexion')
+    green_patch = mpatches.Patch(color='green', label='ring flexion')
+    cyan_patch = mpatches.Patch(color='cyan', label='pinky flexion')
+    magenta_patch = mpatches.Patch(color='magenta', label='thumb flexion')
+    plt.title("PCA")
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
     plt.legend(handles=[red_patch, blue_patch, green_patch, cyan_patch, magenta_patch])
     plt.show()

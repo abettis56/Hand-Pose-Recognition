@@ -95,7 +95,7 @@ def get_finger_joints(finger):
     
     return finger_joints
 """
-def get_finger_angles(finger, colinear, cross):
+def get_finger_angles(finger, colinear, normal):
     #get vector for proximal phalanx
     vec1 = finger.bone(Leap.Bone.TYPE_PROXIMAL).direction
     proximal = np.asarray([vec1[0], vec1[1], vec1[2]])
@@ -113,7 +113,7 @@ def get_finger_angles(finger, colinear, cross):
     angle_set.append(proximal_adduction)
 
     #angle between proximal phalanx and cross product between colinear and normal vectors of the hand
-    proximal_flexion = vg.angle(proximal, cross)
+    proximal_flexion = vg.angle(proximal, normal)
     angle_set.append(proximal_flexion)
 
     #angle between intermediate and proximal phalanx
@@ -161,11 +161,11 @@ def get_hand_position_data(hand):
     #Get angles
     row = []
 
-    row += get_finger_angles(thumb, colinear, cross)
-    row += get_finger_angles(index, colinear, cross)
-    row += get_finger_angles(middle, colinear, cross) 
-    row += get_finger_angles(ring, colinear, cross)
-    row += get_finger_angles(pinky, colinear, cross) 
+    row += get_finger_angles(thumb, colinear, normal)
+    row += get_finger_angles(index, colinear, normal)
+    row += get_finger_angles(middle, colinear, normal) 
+    row += get_finger_angles(ring, colinear, normal)
+    row += get_finger_angles(pinky, colinear, normal) 
 
     #row: [thumb_adduction, thumb_flexion, thumb_intermediate_flexion, thumb_distal_flexion,
     #      index_adduction, index_flexion, index_intermediate_flexion, index_distal_flexion,
@@ -197,7 +197,7 @@ class SampleListener(Leap.Listener):
         if keyboard.is_pressed('0') and unlocked:
             unlocked = False
             dataIndex = 0
-            print("Now recording finger flexing")
+            print("Now recording index flexing")
         if keyboard.is_pressed('1') and unlocked:
             unlocked = False
             dataIndex = 1
@@ -237,7 +237,7 @@ class SampleListener(Leap.Listener):
                                 data[dataIndex].append(row)
         if keyboard.is_pressed('p') and unlocked:
             unlocked = False
-            print("Starting Learning...")
+            print("Saving...")
 
             #Add rows to .csv files
             for i in range(len(data[0])):
@@ -248,18 +248,20 @@ class SampleListener(Leap.Listener):
                 with open('middle_flex_out.csv', 'ab') as file:
                     writer = csv.writer(file)
                     writer.writerow(data[1][i])
-            for i in range(len(data[1])):
+            for i in range(len(data[2])):
                 with open('ring_flex_out.csv', 'ab') as file:
                     writer = csv.writer(file)
                     writer.writerow(data[2][i])
-            for i in range(len(data[1])):
+            for i in range(len(data[3])):
                 with open('pinky_flex_out.csv', 'ab') as file:
                     writer = csv.writer(file)
                     writer.writerow(data[3][i])
-            for i in range(len(data[1])):
+            for i in range(len(data[4])):
                 with open('thumb_flex_out.csv', 'ab') as file:
                     writer = csv.writer(file)
                     writer.writerow(data[4][i])
+
+            print("Saved.")
 
         if (not keyboard.is_pressed('0') and
         not keyboard.is_pressed('1') and
@@ -284,7 +286,7 @@ def main():
         # Keep this process running until Enter is pressed
         print ("Press enter to quit,")
         print ("'q' to record frame,")
-        print ("'p' to save data and run tsne,")
+        print ("'p' to save data,")
         print (" or 0-4 to switch between finger flexion")
         try:
             sys.stdin.readline()
