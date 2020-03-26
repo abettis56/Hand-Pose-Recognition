@@ -109,11 +109,11 @@ def get_finger_angles(finger, colinear, normal):
     angle_set = []
 
     #angle between proximal phalanx and colinear vector of the hand
-    proximal_adduction = vg.angle(proximal, colinear)
+    proximal_adduction = 180 - vg.angle(proximal, colinear)
     angle_set.append(proximal_adduction)
 
     #angle between proximal phalanx and cross product between colinear and normal vectors of the hand
-    proximal_flexion = vg.angle(proximal, normal)
+    proximal_flexion = 90 - vg.angle(proximal, normal)
     angle_set.append(proximal_flexion)
 
     #angle between intermediate and proximal phalanx
