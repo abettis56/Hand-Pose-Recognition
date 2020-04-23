@@ -184,9 +184,10 @@ function readTextFile(file)
 
 			var mesh;
 
-			readTextFile("out.csv");
+			readTextFile("index_flex_out.csv");
 
 			data =  CSVToArray(dataFromFile, ",");
+			console.log(data);
 			//alert(data.length);
 
 			init();
@@ -208,7 +209,7 @@ function readTextFile(file)
 				light.position.set(0, 10000, 0 );
 				scene.add( light );
 
-				/*
+				
 
 				var particles = 15000;
 
@@ -257,22 +258,26 @@ function readTextFile(file)
 
 				particleSystem = new THREE.Points( geometry, material );
 				scene.add( particleSystem );
-				*/
+			
 				// add spheres 
 				
 				var geometry = new THREE.SphereGeometry(10, 8, 8);
 				var material = new THREE.MeshBasicMaterial( {transparent:true, opacity:0.5} );
 				material.color.setRGB(100, 0, 0 );
+				for (let j = 0; j < data[0].length; j+=3)
+				{
+					var sphere = new THREE.Mesh( geometry, material );
+					//sphere.position.x = -0.051382839679718;
+					//sphere.position.y = -0.0000000164593636498012;
+					//sphere.position.z = -0.0000000438699778726459;
+					sphere.position.x = data[0][j];
+					sphere.position.y = data[0][j + 1];
+					sphere.position.z = data[0][j + 2];
 
-				var sphere = new THREE.Mesh( geometry, material );
-				sphere.position.x = -0.051382839679718;
-				sphere.position.y = -0.0000000164593636498012;
-				sphere.position.z = -0.0000000438699778726459;
+					scene.add( sphere );
 
-				scene.add( sphere );
-
-				sphere.scaleY = 1100;
-				
+					sphere.scaleY = 1100;
+				}
 
 				/*
 				//Add FBX model
@@ -310,7 +315,7 @@ function readTextFile(file)
 
 				window.addEventListener( 'resize', onWindowResize, false );
 
-				//REFERENCE GOES HERE; GET FROM SLIME GAME
+				/*REFERENCE GOES HERE; GET FROM SLIME GAME
 				var loader = new THREE.GLTFLoader().setPath( './' );
 				loader.load(
 					// resource URL
@@ -348,7 +353,7 @@ function readTextFile(file)
 							o.receiveShadow = true;
 							o.material = rightHand_mtl; // Add this line
 							}
-						});*/
+						});
 					},
 					// called while loading is progressing
 					function ( xhr ) {
@@ -363,6 +368,7 @@ function readTextFile(file)
 
 					//}
 				);
+				*/
 			}
 
 			function onWindowResize() {
@@ -411,7 +417,7 @@ function readTextFile(file)
 			}
 			
 			function animate() {
-
+				/*
 				scene.traverse(function(child){
 					if (child instanceof THREE.SkinnedMesh && !flag){
 						/*
@@ -429,7 +435,7 @@ function readTextFile(file)
 						 * Bone 3: Thumb Distal Phalanx
 						 * Bone 4: ???
 						 * Bone 5: Index Metacarpal
-						 */
+						 
 						//FIRST, SET HAND TO DEFAULT POSE
 						//Thumb
 						child.skeleton.bones[1].rotation.y -= degToRad(180 - handPoseVec[0]);
@@ -472,7 +478,7 @@ function readTextFile(file)
 						child.update();
 					}
 				});
-
+				*/
 				requestAnimationFrame( animate );
 
 				render();

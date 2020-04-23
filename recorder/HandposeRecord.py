@@ -23,11 +23,11 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import vg
-"""
-Deprecated, used to normalize position values of joints
+
+#Used to normalize position values of joints
 def normalize(coordinates, normal, colinear, cross):
     #Arrange array for ease of modification
-    coordinates = np.reshape(np.asarray(coordinates), (-1, 3))
+    coordinates = np.asarray(coordinates)
     normal = np.asarray(normal)
     colinear = np.asarray(colinear)
 
@@ -46,20 +46,90 @@ def normalize(coordinates, normal, colinear, cross):
     #convert back to list and return
     coordinates = coordinates.flatten().tolist()
     return coordinates
-"""
+
+def PCA_normalize(coordinates):
+    coordinates = np.asarray(coordinates)
+    coordinates = coordinates - coordinates[0]
+    pca_data = PCA(n_components=3).fit_transform(coordinates)
+    pca_data = pca_data.flatten().tolist()
+    return pca_data
+
+def experimental_helper(finger):
+
+    metacarpal = finger.bone(Leap.Bone.TYPE_METACARPAL)
+
+    proximal = finger.bone(Leap.Bone.TYPE_PROXIMAL)
+
+    intermediate = finger.bone(Leap.Bone.TYPE_INTERMEDIATE)
+
+    distal = finger.bone(Leap.Bone.TYPE_DISTAL)
+
+    joints = []
+    joints = joints + experimental_positions(metacarpal, proximal)
+    joints = joints + experimental_positions(proximal, intermediate)
+    joints = joints + experimental_positions(intermediate, distal)
+
+    return joints
+
+#This function accepts two Leap bone objects and gets the position of the most distal involved joint
+def experimental_positions(prox_bone, dist_bone):
+    #Get all the relevant data from the more proximal of the two bones
+    bone_pos = get_vector(prox_bone.center)
+    x_basis = get_vector(prox_bone.basis.x_basis)
+    y_basis = get_vector(prox_bone.basis.y_basis)
+    z_basis = get_vector(prox_bone.basis.z_basis)
+    prox_joint = get_vector(prox_bone.next_joint)
+
+    #Now, get distal joint (or fingertip if it's the distal phalanx) from more distal bone
+    dist_joint = get_vector(dist_bone.next_joint)
+
+    #make numpy arrays out of ALL the things
+    bone_pos = np.asarray(bone_pos)
+    x_basis = np.asarray(x_basis).reshape((-1, 1)) * -1
+    y_basis = np.asarray(y_basis).reshape((-1, 1)) * -1
+    z_basis = np.asarray(z_basis).reshape((-1, 1)) * -1
+    prox_joint = np.asarray(prox_joint)
+    dist_joint = np.asarray(dist_joint)
+
+    #Normalize position, center on bone_pos
+    dist_joint = dist_joint - bone_pos
+    prox_joint = prox_joint - bone_pos
+
+    #rotate to change basis to xyz_basis
+    dist_joint = np.linalg.inv(np.concatenate((x_basis, y_basis, z_basis), axis=1)).dot(dist_joint)
+    prox_joint = np.linalg.inv(np.concatenate((x_basis, y_basis, z_basis), axis=1)).dot(prox_joint)
+
+    #Normalize position again, switching to proximal joint as the centerpoint
+    dist_joint = (dist_joint - prox_joint)
+
+    #dist_joint is now a position vector from the origin, normalized.
+    """For when this was used to get angles
+    #Use VG's angle calculations to get the angle in radians.
+    #Specify "look" = unit basis vectors x = <1, 0, 0> y = <0, 1, 0> z= <0, 0, 1>
+    #to get angles only in an individual plane
+    #angles = []
+    #yz-plane (x-rot)
+    #angles.append(vg.signed_angle(np.array([0, 0, -1]), dist_joint, look=np.array([1, 0, 0]), units='deg'))
+    #xz-plane (y-rot)
+    #angles.append(vg.signed_angle(np.array([0, 0, -1]), dist_joint, look=np.array([0, 1, 0]), units='deg'))
+    #xy-plane (z-rot)
+    #angles.append(vg.signed_angle(np.array([0, -1, 0]), dist_joint, look=np.array([0, 0, 1]), units='deg'))
+    """
+    return dist_joint.tolist()
+
 def get_vector(vec):
     #print ("x: " + str(vec.x))
     #print ("y: " + str(vec.y))
     #print ("z: " + str(vec.z))
     
     return([vec.x, vec.y, vec.z])
-"""
-deprecated: Just gets 3d coords of each joint
+
+#Gets 3d coords of each joint
 def get_finger_joints(finger):
     #print ("----Knuckle position")
-    wrist = get_vector(finger.bone(Leap.Bone.TYPE_METACARPAL).prev_joint)
+    #wrist = get_vector(finger.bone(Leap.Bone.TYPE_METACARPAL).prev_joint)
 
-    #print ("----Distal Metacarpal position")
+    #print ("----MCP position")
     metacarpal = get_vector(finger.bone(Leap.Bone.TYPE_METACARPAL).next_joint)
 
     #print ("----Distal Proximal Phalanx position")
@@ -72,29 +142,33 @@ def get_finger_joints(finger):
     distal = get_vector(finger.bone(Leap.Bone.TYPE_DISTAL).next_joint)
     
     finger_joints = []
-    
+    """
     finger_joints.append(wrist[0])
     finger_joints.append(wrist[1])
     finger_joints.append(wrist[2])
+    """
+    finger_joints.append([])
+    finger_joints[0].append(metacarpal[0])
+    finger_joints[0].append(metacarpal[1])
+    finger_joints[0].append(metacarpal[2])
     
-    finger_joints.append(metacarpal[0])
-    finger_joints.append(metacarpal[1])
-    finger_joints.append(metacarpal[2])
+    finger_joints.append([])
+    finger_joints[1].append(proximal[0])
+    finger_joints[1].append(proximal[1])
+    finger_joints[1].append(proximal[2])
     
-    finger_joints.append(proximal[0])
-    finger_joints.append(proximal[1])
-    finger_joints.append(proximal[2])
+    finger_joints.append([])
+    finger_joints[2].append(intermediate[0])
+    finger_joints[2].append(intermediate[1])
+    finger_joints[2].append(intermediate[2])
     
-    finger_joints.append(intermediate[0])
-    finger_joints.append(intermediate[1])
-    finger_joints.append(intermediate[2])
-    
-    finger_joints.append(distal[0])
-    finger_joints.append(distal[1])
-    finger_joints.append(distal[2])
+    finger_joints.append([])
+    finger_joints[3].append(distal[0])
+    finger_joints[3].append(distal[1])
+    finger_joints[3].append(distal[2])
     
     return finger_joints
-"""
+
 def get_finger_angles(finger, colinear, normal):
     #get vector for proximal phalanx
     vec1 = finger.bone(Leap.Bone.TYPE_PROXIMAL).direction
@@ -109,11 +183,11 @@ def get_finger_angles(finger, colinear, normal):
     angle_set = []
 
     #angle between proximal phalanx and colinear vector of the hand
-    proximal_adduction = 180 - vg.angle(proximal, colinear)
+    proximal_adduction = vg.angle(proximal, colinear)
     angle_set.append(proximal_adduction)
 
     #angle between proximal phalanx and cross product between colinear and normal vectors of the hand
-    proximal_flexion = 90 - vg.angle(proximal, normal)
+    proximal_flexion = vg.angle(proximal, normal)
     angle_set.append(proximal_flexion)
 
     #angle between intermediate and proximal phalanx
@@ -153,36 +227,53 @@ def get_hand_position_data(hand):
         #print ("Right Hand palm position:")
     #Get palm position and normal vector and colinear vector, and calculate 
     #cross product between them for a basis vector set
-    #palm_pos = get_vector(hand.palm_position)
+    palm_pos = [get_vector(hand.palm_position)]
     normal = np.asarray(get_vector(hand.palm_normal))
     colinear = np.asarray(get_vector(hand.direction))
     cross = np.cross(normal, colinear)
+    #negate the vectors
+    normal = np.negative(normal)
+    colinear = np.negative(colinear)
+    cross = np.negative(cross)
 
     #Get angles
     row = []
 
-    row += get_finger_angles(thumb, colinear, normal)
-    row += get_finger_angles(index, colinear, normal)
-    row += get_finger_angles(middle, colinear, normal) 
-    row += get_finger_angles(ring, colinear, normal)
-    row += get_finger_angles(pinky, colinear, normal) 
+    #row += get_finger_angles(thumb, colinear, normal)
+    #row += get_finger_angles(index, colinear, normal)
+    #row += get_finger_angles(middle, colinear, normal) 
+    #row += get_finger_angles(ring, colinear, normal)
+    #row += get_finger_angles(pinky, colinear, normal)
+
+    #thumb_pos = get_finger_joints(thumb)
+    #index_pos = get_finger_joints(index)
+    #middle_pos = get_finger_joints(middle)
+    #ring_pos = get_finger_joints(ring)
+    #pinky_pos = get_finger_joints(pinky)
+
+    row += experimental_helper(thumb)
+    row += experimental_helper(index)
+    row += experimental_helper(middle)
+    row += experimental_helper(ring)
+    row += experimental_helper(pinky)
 
     #row: [thumb_adduction, thumb_flexion, thumb_intermediate_flexion, thumb_distal_flexion,
     #      index_adduction, index_flexion, index_intermediate_flexion, index_distal_flexion,
     #      etc for all fingers...  ]
 
-    #deprecated functionality, used to gather and normalize joint positions
+    #used to gather and normalize joint positions with PCA
     #Concat arrays to get a list of joint positions
     #row = palm_pos + thumb_pos + index_pos + middle_pos + ring_pos + pinky_pos
     #Pass joints, normal vector of palm, and colinear hand vector to normalize function to achieve rotation/translation invariance
-    #row = normalize(row, normal_vector, colinear_vector, cross_vector)
+    #row = normalize(row, normal, colinear, cross)
+    #row = PCA_normalize(row)
     #Insert whether the hand is left at the start of the array
     #row.insert(0, is_left)
 
     return row
 
 unlocked = True
-data = [[], [], [], [], []]
+data = [[], [], [], [], [], [], [], [], [], []]
 dataIndex = 0
     
 class SampleListener(Leap.Listener):
@@ -214,6 +305,26 @@ class SampleListener(Leap.Listener):
             unlocked = False
             dataIndex = 4
             print("Now recording thumb flexing")
+        if keyboard.is_pressed('5') and unlocked:
+            unlocked = False
+            dataIndex = 5
+            print("Now recording index flexed")
+        if keyboard.is_pressed('6') and unlocked:
+            unlocked = False
+            dataIndex = 6
+            print("Now recording middle flexed")
+        if keyboard.is_pressed('7') and unlocked:
+            unlocked = False
+            dataIndex = 7
+            print("Now recording ring flexed")
+        if keyboard.is_pressed('8') and unlocked:
+            unlocked = False
+            dataIndex = 8
+            print("Now recording pinky flexed")
+        if keyboard.is_pressed('9') and unlocked:
+            unlocked = False
+            dataIndex = 9
+            print("Now recording thumb flexed")
 
         if keyboard.is_pressed('q') and unlocked:
             print ("Key pressed!")
@@ -260,6 +371,26 @@ class SampleListener(Leap.Listener):
                 with open('thumb_flex_out.csv', 'ab') as file:
                     writer = csv.writer(file)
                     writer.writerow(data[4][i])
+            for i in range(len(data[5])):
+                with open('index_flexed.csv', 'ab') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(data[5][i])
+            for i in range(len(data[6])):
+                with open('middle_flexed.csv', 'ab') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(data[6][i])
+            for i in range(len(data[7])):
+                with open('ring_flexed.csv', 'ab') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(data[7][i])
+            for i in range(len(data[8])):
+                with open('pinky_flexed.csv', 'ab') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(data[8][i])
+            for i in range(len(data[9])):
+                with open('thumb_flexed.csv', 'ab') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(data[9][i])
 
             print("Saved.")
 
@@ -268,8 +399,12 @@ class SampleListener(Leap.Listener):
         not keyboard.is_pressed('2') and
         not keyboard.is_pressed('3') and
         not keyboard.is_pressed('4') and
+        not keyboard.is_pressed('5') and
+        not keyboard.is_pressed('6') and
+        not keyboard.is_pressed('7') and
+        not keyboard.is_pressed('8') and
+        not keyboard.is_pressed('9') and
         not keyboard.is_pressed('p') and
-        not keyboard.is_pressed('z') and
         not unlocked):
             unlocked = True
         
