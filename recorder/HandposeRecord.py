@@ -1,8 +1,9 @@
-# A Hello World
-# 
 # This code modified from https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-python.html
 # 
-# Written by the Leapmotion devs as a "Hello World" for their system.
+# Originally written by the Leapmotion devs as a "Hello World" for their system.
+
+from os import name, system
+from time import sleep
 
 import os, sys, inspect, thread, time
 src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
@@ -23,6 +24,16 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import vg
+
+# define our clear function 
+def clear(): 
+    # for windows 
+    if name == 'nt': 
+        _ = system('cls') 
+  
+    # for mac and linux(here, os.name is 'posix') 
+    else: 
+        _ = system('clear') 
 
 #Used to normalize position values of joints
 def normalize(coordinates, normal, colinear, cross):
@@ -257,6 +268,12 @@ def get_hand_position_data(hand):
     row += experimental_helper(ring)
     row += experimental_helper(pinky)
 
+    #Check if row has erroneous results (+/- 50 currently allowed)
+    #Rows containing None are not accepted
+    thisArray = np.asarray(row)
+    if(np.amax(thisArray) >= 50 or np.amin(thisArray) <= -50):
+        row.append(None)
+
     #row: [thumb_adduction, thumb_flexion, thumb_intermediate_flexion, thumb_distal_flexion,
     #      index_adduction, index_flexion, index_intermediate_flexion, index_distal_flexion,
     #      etc for all fingers...  ]
@@ -272,6 +289,27 @@ def get_hand_position_data(hand):
 
     return row
 
+def printHand(row):
+    print("Thumb first joint: " + str(row[0]) + " ," + str(row[1]) + " ," + str(row[2]) + '\n' +
+    "Thumb second joint: " + str(row[3]) + " ," + str(row[4]) + " ," + str(row[5]) + '\n' +
+    "Thumb end: " + str(row[6]) + " ," + str(row[7]) + " ," + str(row[8]) + '\n' +
+
+    "Index first joint: " + str(row[9]) + " ," + str(row[10]) + " ," + str(row[11]) + '\n' +
+    "Index second joint: " + str(row[12]) + " ," + str(row[13]) + " ," + str(row[14]) + '\n' +
+    "Index end: " + str(row[15]) + " ," + str(row[16]) + " ," + str(row[17]) + '\n' +
+
+    "Middle first joint: " + str(row[18]) + " ," + str(row[19]) + " ," + str(row[20]) + '\n' +
+    "Middle second joint: " + str(row[21]) + " ," + str(row[22]) + " ," + str(row[23]) + '\n' +
+    "Middle end: " + str(row[24]) + " ," + str(row[25]) + " ," + str(row[26]) + '\n' +
+
+    "Ring first joint: " + str(row[27]) + " ," + str(row[28]) + " ," + str(row[29]) + '\n' +
+    "Ring second joint: " + str(row[30]) + " ," + str(row[31]) + " ," + str(row[32]) + '\n' +
+    "Ring end: " + str(row[33]) + " ," + str(row[34]) + " ," + str(row[35]) + '\n' +
+
+    "Pinky first joint: " + str(row[36]) + " ," + str(row[37]) + " ," + str(row[38]) + '\n' +
+    "Pinky second joint: " + str(row[39]) + " ," + str(row[40]) + " ," + str(row[41]) + '\n' +
+    "Pinky end: " + str(row[42]) + " ," + str(row[43]) + " ," + str(row[44]) + '\n')
+
 unlocked = True
 data = [[], [], [], [], [], [], [], [], [], []]
 dataIndex = 0
@@ -285,6 +323,26 @@ class SampleListener(Leap.Listener):
         global data
         global dataIndex
         
+        #print current data readout
+        frame = controller.frame()
+        if frame.is_valid:
+            hands = frame.hands
+            handL = None
+            handR = None
+            for i in range(0,2):
+                if hands[i].is_valid:
+                    print ("HAND FOUND")
+                    if hands[i].is_left:
+                        handL = hands[i]
+                        row = get_hand_position_data(handL)
+                        printHand(row)
+                    elif hands[i].is_right:
+                        handR = hands[i]
+                        row = get_hand_position_data(handR)
+                        printHand(row)
+
+
+        #check inputs and react accordingly
         if keyboard.is_pressed('0') and unlocked:
             unlocked = False
             dataIndex = 0
@@ -324,7 +382,7 @@ class SampleListener(Leap.Listener):
         if keyboard.is_pressed('9') and unlocked:
             unlocked = False
             dataIndex = 9
-            print("Now recording thumb flexed")
+            print("Now recording ALL")
 
         if keyboard.is_pressed('q') and unlocked:
             print ("Key pressed!")
@@ -388,7 +446,7 @@ class SampleListener(Leap.Listener):
                     writer = csv.writer(file)
                     writer.writerow(data[8][i])
             for i in range(len(data[9])):
-                with open('thumb_flexed.csv', 'ab') as file:
+                with open('hand_manifold.csv', 'ab') as file:
                     writer = csv.writer(file)
                     writer.writerow(data[9][i])
 
@@ -407,6 +465,10 @@ class SampleListener(Leap.Listener):
         not keyboard.is_pressed('p') and
         not unlocked):
             unlocked = True
+
+        #clear screen
+        sleep(.017)
+        clear()
         
 
 def main():
