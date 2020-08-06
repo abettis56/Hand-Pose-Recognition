@@ -36,14 +36,14 @@ def clear():
         _ = system('clear') 
 
 #Used to normalize position values of joints
-def normalize(coordinates, normal, colinear, cross):
+def normalize(coordinates, normal, colinear, cross, hand_center):
     #Arrange array for ease of modification
     coordinates = np.asarray(coordinates)
     normal = np.asarray(normal)
     colinear = np.asarray(colinear)
 
     #normalize translation
-    coordinates = coordinates - coordinates[0]
+    coordinates = coordinates - hand_center
 
     #reshape normal, colinear, and cross vectors for change of basis
     normal = normal.reshape((-1, 1))
@@ -211,6 +211,21 @@ def get_finger_angles(finger, colinear, normal):
 
     return angle_set
 
+def get_bone_vec(finger):
+    #Get bone basis vectors
+    vec_set = []
+    #get vector for proximal phalanx
+    vec1 = finger.bone(Leap.Bone.TYPE_PROXIMAL).direction
+    vec_set += [vec1[0], vec1[1], vec1[2]]
+    #get vector for intermediate phalanx
+    vec2 = finger.bone(Leap.Bone.TYPE_INTERMEDIATE).direction
+    vec_set += [vec2[0], vec2[1], vec2[2]]
+    #get vector for distal phalanx
+    vec3 = finger.bone(Leap.Bone.TYPE_DISTAL).direction
+    vec_set += [vec3[0], vec3[1], vec3[2]]
+
+    return vec_set
+
 def get_hand_position_data(hand):
     #Get fingers
     thumb_finger_list = hand.fingers.finger_type(Leap.Finger.TYPE_THUMB)
@@ -262,17 +277,23 @@ def get_hand_position_data(hand):
     #ring_pos = get_finger_joints(ring)
     #pinky_pos = get_finger_joints(pinky)
 
-    row += experimental_helper(thumb)
-    row += experimental_helper(index)
-    row += experimental_helper(middle)
-    row += experimental_helper(ring)
-    row += experimental_helper(pinky)
+    #row += experimental_helper(thumb)
+    #row += experimental_helper(index)
+    #row += experimental_helper(middle)
+    #row += experimental_helper(ring)
+    #row += experimental_helper(pinky)
+
+    row += get_bone_vec(thumb)
+    row += get_bone_vec(index)
+    row += get_bone_vec(middle)
+    row += get_bone_vec(ring)
+    row += get_bone_vec(pinky)
 
     #Check if row has erroneous results (+/- 50 currently allowed)
-    #Rows containing None are not accepted
-    thisArray = np.asarray(row)
+    #Rows containing None are not accepted NOTE: Get number bounds for each bone
+    """thisArray = np.asarray(row)
     if(np.amax(thisArray) >= 50 or np.amin(thisArray) <= -50):
-        row.append(None)
+        row.append(None)"""
 
     #row: [thumb_adduction, thumb_flexion, thumb_intermediate_flexion, thumb_distal_flexion,
     #      index_adduction, index_flexion, index_intermediate_flexion, index_distal_flexion,
@@ -282,7 +303,7 @@ def get_hand_position_data(hand):
     #Concat arrays to get a list of joint positions
     #row = palm_pos + thumb_pos + index_pos + middle_pos + ring_pos + pinky_pos
     #Pass joints, normal vector of palm, and colinear hand vector to normalize function to achieve rotation/translation invariance
-    #row = normalize(row, normal, colinear, cross)
+    row = normalize(row, normal, colinear, cross, palm_pos)
     #row = PCA_normalize(row)
     #Insert whether the hand is left at the start of the array
     #row.insert(0, is_left)
@@ -339,8 +360,8 @@ class SampleListener(Leap.Listener):
                     elif hands[i].is_right:
                         handR = hands[i]
                         row = get_hand_position_data(handR)
-                        printHand(row)
-
+                        #printHand(row)
+                        print(get_vector(handR.fingers.finger_type(Leap.Finger.TYPE_THUMB)[0].bone(Leap.Bone.TYPE_METACARPAL).basis.x_basis))
 
         #check inputs and react accordingly
         if keyboard.is_pressed('0') and unlocked:
