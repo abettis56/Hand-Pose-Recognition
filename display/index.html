@@ -189,7 +189,31 @@ function readTextFile(file)
 			data =  CSVToArray(dataFromFile, ",");
 			console.log(data);
 			//alert(data.length);
-
+			/*
+			var handPoseVec = [
+				//Thumb
+				0.2895343792093411,-0.8697599722510201,0.3996090412086312,-0.8064036205911777,-0.44656207607059023,-0.3876795771392841,0.5156384650596045,-0.20999962256330862,-0.8306726955499221,
+				1.0,1.3744298995067868e-17,-7.390335747198765e-18,1.759250765518095e-08,0.9941698525105631,-0.10782539792450446,-9.389633315958877e-09,0.10782546953584293,0.9941698324957049,
+				1.0,0.0,0.0,4.0198395461615965e-09,0.924707616091955,0.38067814465300553,2.3748757614331214e-08,-0.3806781585543221,0.9247076382972103,
+				//Index (starts at 27)
+				0.9985806483293157,-0.017722812143141614,0.05022453924838903,-0.02382891811774815,-0.9920316209295883,0.12371477336290342,0.04763174795671699,-0.12473600265657267,-0.9910459900463234,
+				1.0,-3.336707049255461e-18,1.977466220452107e-18,-1.3366099186166872e-08,0.9969414934989306,-0.07815163555288052,-1.2802359934521332e-08,0.07815162891751767,0.9969414790138674,
+				1.0,0.0,0.0,-1.6829631791919052e-09,0.9980074314229118,-0.06309714336274928,1.0569976336433806e-08,0.06309714446688519,0.9980073935933353,
+				//Middle (starts at 54)
+				0.9718459972685416,0.11293773594868878,-0.20678580809249109,0.1332134286550472,-0.9872732865957204,0.08686546112512906,-0.19434372468057795,-0.11196649152958564,-0.9745224608222133,
+				1.0,1.554961142331553e-17,-1.2028960223482155e-17,2.1264593621753538e-08,0.9968831789952893,-0.07889210091044489,-2.292802943471602e-09,0.07889210657835435,0.9968831734557015,
+				1.0,0.0,0.0,1.8850450600543294e-09,0.9979070470598231,-0.06466417211592905,6.514990044814061e-09,0.06466418591673016,0.9979070519094593,
+				//Ring (starts at 81)
+				0.960583427055246,0.19000934778732245,-0.20291838566812534,0.19000999089384155,-0.9815852256722355,-0.01966257210721267,-0.20291774935907259,-0.01966899152705294,-0.9789982161054359,
+				1.0,6.14600519729091e-19,1.2763663846248583e-17,-1.5376929572760784e-09,0.9931181456660095,-0.11711686032753134,2.1503066201964476e-09,0.117116840159661,0.9931181222380733,
+				1.0,0.0,0.0,4.173032069334189e-08,0.9951599505903331,-0.09826812034255114,5.540286703551947e-09,0.0982681315118401,0.9951599997818044,
+				//Pinky (starts at 108)
+				0.8967115056253191,0.3363477355074788,-0.28771269070013744,0.30646470764755707,-0.9408194586938187,-0.14470015023324784,-0.3193552542444027,0.04158051245867152,-0.9467223536536941,
+				1.0,-2.7390341321437244e-18,8.206835294497995e-18,-2.2042700207065987e-08,0.9916206104954611,-0.1291838608053981,-6.8817538563838004e-09,0.12918387102352594,0.9916207104678536,
+				1.0,0.0,0.0,2.32287243193162e-08,0.9940545157577816,-0.10888380236373725,2.5371323962712487e-09,0.10888380917407052,0.9940544868908411
+			];
+			*/
+			var handPoseVec = [0.17002050870550714,-0.8036450480414654,-0.5703048651891546,-0.9309246571362464,-0.32080643817543336,0.17453512540165073,0.3232217580668064,-0.5012363079727608,0.8026766623384849,1.0,-4.741222965920139e-18,-1.4729489813730952e-17,-0.0,1.0,7.858383438068041e-18,-0.0,-0.0,1.0,1.0,-4.741222965920139e-18,-1.4729489813730952e-17,-0.0,1.0,7.858383438068041e-18,-0.0,-0.0,1.0,0.9817995675476828,0.003352329192921263,-0.18989064733347374,-0.13437757972346606,-0.6942939284395715,-0.7070350748138771,0.13421015661317928,-0.719683722986726,0.6812069831109584,0.9817994788271602,-0.1343775740791619,0.13421013393941875,0.0033523423433564634,-0.6942939548055752,-0.7196837554163242,-0.1898906482241216,-0.7070350641146306,0.6812069810479919,0.9817994788271602,-0.1343775740791619,0.13421013393941875,-0.18979095784554412,-0.7202666037537448,0.6672296692770027,-0.007006376510601386,0.680557660840503,0.7326610532790669,0.9890330218115,0.14034092228443917,0.04602379949812581,0.12839374667045614,-0.6629577630398045,-0.7375649370697328,0.07299871983097292,-0.7353851910623611,0.6737060226720694,0.98903293712336,0.12839374090208988,0.07299870593160485,0.14034093195199432,-0.6629578029969823,-0.7353852221713795,0.046023790397087365,-0.7375649209317684,0.6737059942058249,0.98903293712336,0.12839374090208988,0.07299870593160485,0.04905181613770646,-0.7517471037989434,0.6576246684278876,-0.13931146248492826,0.6468318076518299,0.7498006305977647,0.9726640474668968,0.20409030570898215,0.11077822877896863,0.22943100681875425,-0.7709258319690823,-0.5941673113648582,0.035861995813445,-0.6033411307106512,0.7966764819904518,0.9726640294478078,0.2294310020337563,0.035861989011547045,0.20409030719004026,-0.7709258211542588,-0.6033411253179186,0.1107782209595023,-0.5941672949614322,0.7966764616433891,0.9726640294478078,0.2294310020337563,0.03586198901154703,0.12770001370342624,-0.6574532579387132,0.7425953813211547,-0.1939519916280316,0.7177162632295819,0.6687794995033304,0.8636076854963981,0.32302617713497606,0.3870863511206825,0.48801052342197004,-0.7283933180125052,-0.4809250728595296,-0.12659971981166337,-0.6042328034035831,0.7866862425138051,0.8636076965763283,0.48801051449301636,-0.12659972228629682,0.32302618144745593,-0.7283932995577735,-0.6042327943021288,0.3870863517702437,-0.4809250632924074,0.7866862314042619,0.8636076965763283,0.48801051449301636,-0.12659972228629682,0.40955391178822553,-0.5326251154334142,0.7406592005485034,-0.2940193027529644,0.6914884104979216,0.6598457866408622]
 			init();
 			animate();
 
@@ -221,7 +245,7 @@ function readTextFile(file)
 				var color = new THREE.Color();
 
 				var n = 1000, n2 = n / 2; // particles spread in the cube
-
+/*
 				for ( var i = 0; i < data.length; i += 1 ) {
 
 					// positions
@@ -247,7 +271,7 @@ function readTextFile(file)
 					colors[ i*3 + 2 ] = color.b;
 
 				}
-
+*/
 				geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
 				geometry.addAttribute( 'color', new THREE.BufferAttribute( colors, 3 ) );
 				geometry.computeBoundingSphere();
@@ -257,14 +281,14 @@ function readTextFile(file)
 				var material = new THREE.PointsMaterial( { size: 10, vertexColors: THREE.VertexColors } );
 
 				particleSystem = new THREE.Points( geometry, material );
-				scene.add( particleSystem );
+				//scene.add( particleSystem );
 			
 				// add spheres 
 				
-				var geometry = new THREE.SphereGeometry(10, 8, 8);
+				var geometry = new THREE.SphereGeometry(0.1, 8, 8);
 				var material = new THREE.MeshBasicMaterial( {transparent:true, opacity:0.5} );
 				material.color.setRGB(100, 0, 0 );
-				for (let j = 0; j < data[0].length; j+=3)
+				/*for (let j = 0; j < data[0].length; j+=3)
 				{
 					var sphere = new THREE.Mesh( geometry, material );
 					//sphere.position.x = -0.051382839679718;
@@ -277,6 +301,111 @@ function readTextFile(file)
 					scene.add( sphere );
 
 					sphere.scaleY = 1100;
+				}*/
+				//Generate knuckles
+				var index = []
+				index[0] = new THREE.Mesh( geometry, material );
+				index[0].position.x = 0;
+				index[0].position.y = 0;
+				index[0].position.z = 0;
+				scene.add(index[0]);
+
+				var count = 0;
+				for(let i = 33; i < 54; i+=9)
+				{
+					let vecx = index[count].position.x + handPoseVec[i];
+					let vecy = index[count].position.y + handPoseVec[i+1];
+					let vecz = index[count].position.z + handPoseVec[i+2];
+					count++;
+					index[count] = new THREE.Mesh( geometry, material );
+					index[count].position.x = vecx;
+					index[count].position.y = vecy;
+					index[count].position.z = vecz;
+					scene.add(index[count]);
+				}
+
+				var middle = []
+				middle[0] = new THREE.Mesh( geometry, material );
+				middle[0].position.x = -1;
+				middle[0].position.y = 0;
+				middle[0].position.z = 0;
+				scene.add(middle[0]);
+
+				count = 0;
+				for(let i = 60; i < 81; i+=9)
+				{
+					let vecx = middle[count].position.x + handPoseVec[i];
+					let vecy = middle[count].position.y + handPoseVec[i+1];
+					let vecz = middle[count].position.z + handPoseVec[i+2];
+					count++;
+					middle[count] = new THREE.Mesh( geometry, material );
+					middle[count].position.x = vecx;
+					middle[count].position.y = vecy;
+					middle[count].position.z = vecz;
+					scene.add(middle[count]);
+				}
+
+				var ring = []
+				ring[0] = new THREE.Mesh( geometry, material );
+				ring[0].position.x = -2;
+				ring[0].position.y = 0;
+				ring[0].position.z = 0;
+				scene.add(ring[0]);
+
+				count = 0;
+				for(let i = 87; i < 108; i+=9)
+				{
+					let vecx = ring[count].position.x + handPoseVec[i];
+					let vecy = ring[count].position.y + handPoseVec[i+1];
+					let vecz = ring[count].position.z + handPoseVec[i+2];
+					count++;
+					ring[count] = new THREE.Mesh( geometry, material );
+					ring[count].position.x = vecx;
+					ring[count].position.y = vecy;
+					ring[count].position.z = vecz;
+					scene.add(ring[count]);
+				}
+
+				var pinky = []
+				pinky[0] = new THREE.Mesh( geometry, material );
+				pinky[0].position.x = -3;
+				pinky[0].position.y = 0;
+				pinky[0].position.z = 0;
+				scene.add(pinky[0]);
+
+				count = 0;
+				for(let i = 114; i < handPoseVec.length; i+=9)
+				{
+					let vecx = pinky[count].position.x + handPoseVec[i];
+					let vecy = pinky[count].position.y + handPoseVec[i+1];
+					let vecz = pinky[count].position.z + handPoseVec[i+2];
+					count++;
+					pinky[count] = new THREE.Mesh( geometry, material );
+					pinky[count].position.x = vecx;
+					pinky[count].position.y = vecy;
+					pinky[count].position.z = vecz;
+					scene.add(pinky[count]);
+				}
+
+				var thumb = []
+				thumb[0] = new THREE.Mesh( geometry, material );
+				thumb[0].position.x = 0;
+				thumb[0].position.y = 0;
+				thumb[0].position.z = -3;
+				scene.add(thumb[0]);
+
+				count = 0;
+				for(let i = 6; i < 27; i+=9)
+				{
+					let vecx = thumb[count].position.x + handPoseVec[i+2];
+					let vecy = thumb[count].position.y + handPoseVec[i+1];
+					let vecz = thumb[count].position.z + handPoseVec[i];
+					count++;
+					thumb[count] = new THREE.Mesh( geometry, material );
+					thumb[count].position.x = vecx;
+					thumb[count].position.y = vecy;
+					thumb[count].position.z = vecz;
+					scene.add(thumb[count]);
 				}
 
 				/*
@@ -383,32 +512,6 @@ function readTextFile(file)
 			//
 
 			var flag = false;
-			var handPoseVec = [
-				155.26678618567215,
-				109.28691922743836,
-				11.268598368782397,
-				27.266691725191574,
-
-				172.63387387641356,
-				85.55191771899892,
-				5.079326401215757,
-				4.362393919910658,
-
-				169.41175919605368,
-				81.13632868189788,
-				3.9361477420703066,
-				3.4822657832656265,
-
-				168.36314485765993,
-				79.81296419817599,
-				4.863526801505314,
-				4.295944551080247,
-
-				160.2286842503154,
-				80.61700303972574,
-				6.703035176958906,
-				5.834489120301826
-			];
 
 			function degToRad(degrees) {
 				let radian = degrees * (3.1415 / 180.0);
