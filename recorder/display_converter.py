@@ -1,3 +1,12 @@
+"""
+This program is designed to act as a sort of middleman between recorded data and visualization.
+
+It accepts a 135-dimensional vector describing a hand, with each bone described relative to the previous.
+Then, the vector is converted to describe each bone relative to a common origin point.
+
+If there's an issue with displaying data visually, it's probably here or in "index.html"
+"""
+
 import csv
 import numpy as np
 
@@ -16,11 +25,15 @@ def read():
     return data
 
 def convert():
-    vector = read()[5]
+    #currently just set to read the 1st vector found in the .csv file.
+    #Once shown to be in complete working order, would read and convert all vectors
+    vector = read()[0]
 
     vector = np.asarray(vector)
 
     vector = vector.reshape((-1, 3))
+
+    #each finger works the same way, attempting to undo the normalization procedure from basis_recorder.py
 
     ####################rotate thumb#######################
     distal_matrix = np.concatenate((vector[6].reshape((-1, 1)),
@@ -44,7 +57,7 @@ def convert():
         vector[i+3] = np.linalg.solve(proximal_matrix, vector[i]).T
         vector[i+6] = np.linalg.solve(proximal_matrix, vector[i]).T
 
-    ####################rotate index#######################NOTE:ADDED PROXIMAL_MATRIX CALCULATIONS FOR TESTING
+    ####################rotate index#######################
     distal_matrix = np.concatenate((vector[15].reshape((-1, 1)),
                                 vector[16].reshape((-1, 1)),
                                 vector[17].reshape((-1, 1))), axis=1)

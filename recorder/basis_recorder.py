@@ -1,8 +1,7 @@
 """
 This program is responsible for connecting to the Leap Motion Sensor,
-detecting hands, normalizing the rotation of the hand using the index
-finger metacarpal as a base, and saving the basis vectors of each finger
-bone in the new space to a .csv file.
+detecting hands, normalizing the rotation of the hand using the palm basis vectors
+as a base, and saving the basis vectors of each finger bone in the new space to a .csv file.
 """
 
 # This code modified from https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-python.html
@@ -235,9 +234,8 @@ def main():
     
     # Keep this process running until Enter is pressed
     print ("Press enter to quit,")
-    print ("'q' to record frame,")
+    print ("'q' to toggle recording,")
     print ("'p' to save data,")
-    print (" or 0-4 to switch between finger flexion")
     try:
         sys.stdin.readline()
     except KeyboardInterrupt:
